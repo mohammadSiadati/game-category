@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -17,10 +19,21 @@ import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SideBar from '../sideBar/SideBar';
+import { useQuery } from '@tanstack/react-query';
 
 // cont api = 'https://api.rawg.io/api/games?key=b07b64e7024442b9ba790a84e288e357&dates=2011-09-01,2019-09-30&platforms=18,1,7'
 
 const CartItems = () => {
+  const { data } = useQuery({
+    queryKey: [`awdaw`],
+    queryFn: () =>
+      fetch(
+        `https://api.rawg.io/api/games?key=b07b64e7024442b9ba790a84e288e357&dates=2011-09-01,2019-09-30&platforms=18,1,7`
+      ).then((res) => res.json()),
+  });
+
+  console.log(data);
+
   return (
     <Box sx={{ display: 'flex' }}>
       <SideBar />
