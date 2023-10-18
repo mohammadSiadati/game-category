@@ -1,0 +1,17 @@
+.element {
+  &:hover {
+    transform: rotate(360deg) translate(0px, 0px);
+    animation: cssAnimation_0 1622ms 1 linear 165ms;
+    background: white;
+  }
+}
+
+@keyframes cssAnimation_0 {
+  from {
+    transform: rotate(360deg) translate(0px, 0px);
+  }
+
+  to {
+    transform: rotate(5deg) translate(0px, 0px);
+  }
+}
