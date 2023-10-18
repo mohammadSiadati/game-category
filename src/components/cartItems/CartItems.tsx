@@ -1,104 +1,189 @@
 'use client';
-
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import Box from '@mui/material/Box';
-import CardHeader from '@mui/material/CardHeader';
-import Container from '@mui/material/Container';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
+import Divider from '@mui/material/Divider';
 import CardActions from '@mui/material/CardActions';
-import Collapse from '@mui/material/Collapse';
-import Avatar from '@mui/material/Avatar';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import Alert from '@mui/material/Alert';
 import ShareIcon from '@mui/icons-material/Share';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SideBar from '../sideBar/SideBar';
 import { useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
+import './style.css';
+import { RingLoader } from 'react-spinners';
 
 // cont api = 'https://api.rawg.io/api/games?key=b07b64e7024442b9ba790a84e288e357&dates=2011-09-01,2019-09-30&platforms=18,1,7'
 
 const CartItems = () => {
-  const { data } = useQuery({
-    queryKey: [`awdaw`],
-    queryFn: () =>
-      fetch(
-        `https://api.rawg.io/api/games?key=b07b64e7024442b9ba790a84e288e357&dates=2011-09-01,2019-09-30&platforms=18,1,7`
+  const { isLoading, error, data } = useQuery({
+    queryKey: ['repoData'],
+    queryFn: async () =>
+      await fetch(
+        'https://api.rawg.io/api/games?key=b07b64e7024442b9ba790a84e288e357&dates=2011-09-01,2019-09-30&platforms=18,1,7'
       ).then((res) => res.json()),
+    staleTime: 0,
   });
 
-  console.log(data);
+  if (isLoading)
+    return (
+      <RingLoader
+        color="#DAFFFB"
+        size={500}
+        cssOverride={{
+          position: 'absolute',
+          left: '45%',
+          top: '45%',
+          transform: 'translate(-50%,-50%)',
+        }}
+      />
+    );
+
+  if (error)
+    return (
+      <Alert
+        variant="filled"
+        severity="error"
+        sx={{
+          mt: '20px',
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        you have an error and can not fetching data please check your network
+        and refresh again🚫⛔
+      </Alert>
+    );
 
   return (
     <Box sx={{ display: 'flex' }}>
       <SideBar />
-      <Card sx={{ maxWidth: 345, mt: '20px' }}>
-        <CardMedia
-          component="img"
-          height="194"
-          image="/static/images/cards/paella.jpg"
-          alt="Paella dish"
-        />
-        <CardContent>
-          <Typography variant="body2" color="text.secondary">
-            This impressive paella is a perfect party dish and a fun meal to
-            cook together with your guests. Add 1 cup of frozen peas along with
-            the mussels, if you like.
-          </Typography>
-        </CardContent>
-        <CardActions disableSpacing>
-          <IconButton aria-label="add to favorites">
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton aria-label="share">
-            <ShareIcon />
-          </IconButton>
-          {/* <ExpandMore
-          expand={expanded}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-        >
-          <ExpandMoreIcon />
-        </ExpandMore> */}
-        </CardActions>
-        {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <CardContent>
-          <Typography paragraph>Method:</Typography>
-          <Typography paragraph>
-            Heat 1/2 cup of the broth in a pot until simmering, add saffron and
-            set aside for 10 minutes.
-          </Typography>
-          <Typography paragraph>
-            Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet
-            over medium-high heat. Add chicken, shrimp and chorizo, and cook,
-            stirring occasionally until lightly browned, 6 to 8 minutes.
-            Transfer shrimp to a large plate and set aside, leaving chicken and
-            chorizo in the pan. Add pimentón, bay leaves, garlic, tomatoes,
-            onion, salt and pepper, and cook, stirring often until thickened and
-            fragrant, about 10 minutes. Add saffron broth and remaining 4 1/2
-            cups chicken broth; bring to a boil.
-          </Typography>
-          <Typography paragraph>
-            Add rice and stir very gently to distribute. Top with artichokes and
-            peppers, and cook without stirring, until most of the liquid is
-            absorbed, 15 to 18 minutes. Reduce heat to medium-low, add reserved
-            shrimp and mussels, tucking them down into the rice, and cook again
-            without stirring, until mussels have opened and rice is just tender,
-            5 to 7 minutes more. (Discard any mussels that don&apos;t open.)
-          </Typography>
-          <Typography>
-            Set aside off of the heat to let rest for 10 minutes, and then
-            serve.
-          </Typography>
-        </CardContent>
-      </Collapse> */}
-      </Card>
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-evenly',
+          mt: '60px',
+          mb: '60px',
+        }}
+      >
+        {data.results.map((game: any) => (
+          <Card key={game.id} sx={{ maxWidth: 345, m: '30px 20px' }}>
+            <CardMedia
+              component="img"
+              height="194"
+              image={game.background_image}
+              alt={game.background_image}
+            />
+            <CardContent>
+              {game.platforms
+                .filter((i: any) => i.platform.slug !== 'ps-vita')
+                .map((item: any) => {
+                  const namePhoto = Array.from(item.platform.name)
+                    .join('')
+                    .split(' ')[0];
+                  console.log(namePhoto);
+
+                  return (
+                    <Image
+                      key={item.id}
+                      style={{
+                        padding: '0 2px',
+                        textAlign: 'center',
+                        alignItems: 'center',
+                        margin: '10px 0 0 0 ',
+                      }}
+                      src={
+                        `/platform/${namePhoto.toLowerCase()}.png` ??
+                        `/platform/${namePhoto.toLowerCase()}.svg`
+                      }
+                      alt=""
+                      width={20}
+                      height={20}
+                    />
+                  );
+                })}
+              <Box
+                component="span"
+                sx={{
+                  color: `${
+                    game.metacritic > 90
+                      ? `green`
+                      : game.metacritic > 80
+                      ? 'orange'
+                      : 'red'
+                  }`,
+                  border: `0.1px solid ${
+                    game.metacritic > 90
+                      ? `green`
+                      : game.metacritic
+                      ? 'orange'
+                      : 'red'
+                  } `,
+                  position: `relative`,
+                  borderRadius: '3px',
+                  padding: '3px',
+                  float: `right`,
+                  fontSize: `24px`,
+                }}
+              >
+                {game.metacritic}
+              </Box>
+              {/* <Divider sx={{ my: '20px' }} /> */}
+              <Typography variant="h6" color="text.secondary" my={2}>
+                {game.name}
+              </Typography>
+              <Divider sx={{ my: '20px' }} />
+              <Typography variant="body1" color="black" fontWeight={600}>
+                Released:
+                <Typography component="span"> {game.released}</Typography>
+              </Typography>
+              <Divider sx={{ my: '20px' }} />
+              <Typography>
+                Genres :
+                {game.genres.map((genre: any) => (
+                  <Typography
+                    component="span"
+                    variant="body1"
+                    sx={{
+                      padding: '5px',
+                      textDecoration: 'underline',
+                    }}
+                    color="black"
+                    fontWeight={600}
+                  >
+                    {genre.name}
+                  </Typography>
+                ))}
+              </Typography>
+
+              <Divider sx={{ my: '20px' }} />
+              <IconButton
+                className="element"
+                aria-label="rating"
+                sx={{
+                  borderRadius: '8px',
+                  background: `#979ba1`,
+                }}
+              >
+                {game.ratings_count} +
+              </IconButton>
+            </CardContent>
+            <CardActions disableSpacing>
+              <IconButton aria-label="add to favorites">
+                <FavoriteIcon />
+              </IconButton>
+              <IconButton aria-label="share">
+                <ShareIcon />
+              </IconButton>
+            </CardActions>
+          </Card>
+        ))}
+      </Box>
     </Box>
   );
 };
