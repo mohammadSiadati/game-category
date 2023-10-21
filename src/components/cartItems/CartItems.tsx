@@ -133,7 +133,6 @@ const CartItems = () => {
               >
                 {game.metacritic}
               </Box>
-              {/* <Divider sx={{ my: '20px' }} /> */}
               <Typography variant="h6" color="text.secondary" my={2}>
                 {game.name}
               </Typography>
